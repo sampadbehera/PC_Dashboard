@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)file:///C:/Users/sampad.behera/Downloads/PC_Dashboard_260526_3.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC Report Dashboard</title>
+<link href="./PC Report Dashboard_files/css2" rel="stylesheet">
+<script src="./PC Report Dashboard_files/chart.umd.min.js.download"></script>
+<script src="./PC Report Dashboard_files/xlsx.full.min.js.download"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f5;
+  --white:#ffffff;
+  --surface:#f8f9fb;
+  --border:#e2e6ea;
+  --border-light:#edf0f3;
+  --text:#1a2332;
+  --text-2:#4a5568;
+  --text-3:#8a97a8;
+  --accent:#2563eb;
+  --accent-light:#eff4ff;
+  --accent-hover:#1d4ed8;
+  --green:#059669;
+  --green-bg:#ecfdf5;
+  --red:#dc2626;
+  --red-bg:#fef2f2;
+  --amber:#d97706;
+  --amber-bg:#fffbeb;
+  --purple:#7c3aed;
+  --purple-bg:#f5f3ff;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -1px rgba(0,0,0,.05);
+  --shadow-md:0 10px 15px -3px rgba(0,0,0,.07),0 4px 6px -2px rgba(0,0,0,.04);
+  --radius:8px;
+  --radius-lg:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:13px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ─── UPLOAD SCREEN ─── */
+#uploadScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1e3a5f 0%,#1a2f50 50%,#162540 100%);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px}
+.up-box{background:var(--white);border-radius:20px;padding:48px 52px;max-width:520px;width:100%;box-shadow:var(--shadow-md)}
+.up-brand{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.up-brand-icon{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.up-brand-icon svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.up-brand-name{font-family:'Inter Display',sans-serif;font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.up-brand-name span{color:var(--accent)}
+.up-headline{font-family:'Inter Display',sans-serif;font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.4px;margin-bottom:8px}
+.up-sub{font-size:13px;color:var(--text-2);margin-bottom:28px;line-height:1.6}
+.drop-zone{border:2px dashed #c7d3e0;border-radius:var(--radius-lg);padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--surface)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-light)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{width:48px;height:48px;background:var(--accent-light);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.drop-icon svg{width:24px;height:24px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.drop-main{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.drop-hint{font-size:12px;color:var(--text-3)}
+.up-note{font-size:11px;color:var(--text-3);margin-top:16px;line-height:1.6;padding:10px 14px;background:var(--surface);border-radius:6px;border:1px solid var(--border-light)}
+.up-note strong{color:var(--text-2)}
+.up-error{color:var(--red);font-size:12px;margin-top:12px;padding:10px 14px;background:var(--red-bg);border-radius:6px;display:none;border:1px solid #fecaca}
+.up-progress{margin-top:18px;display:none}
+.up-progress-bar{background:#e2e8f0;border-radius:4px;height:4px;overflow:hidden}
+.up-progress-fill{height:100%;background:var(--accent);border-radius:4px;width:0%;transition:width .4s ease}
+.up-progress-txt{font-size:11px;color:var(--text-3);margin-top:6px}
+
+/* ─── MAIN LAYOUT ─── */
+#app{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#1e2d40;display:flex;flex-direction:column;z-index:50}
+.sidebar-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-brand-row{display:flex;align-items:center;gap:9px}
+.sidebar-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-icon svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-title{font-family:'Inter Display',sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.2}
+.sidebar-title span{color:#60a5fa}
+.sidebar-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+.sidebar-nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-section-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;padding:8px 8px 4px;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:7px;cursor:pointer;transition:.15s;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;margin-bottom:2px;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.nav-item.active{background:rgba(37,99,235,.3);color:#fff;box-shadow:inset 2px 0 0 var(--accent)}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.sidebar-footer{padding:12px 10px;border-top:1px solid rgba(255,255,255,.08)}
+.new-file-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:7px;color:rgba(255,255,255,.65);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;font-family:'Inter',sans-serif}
+.new-file-btn:hover{background:rgba(255,255,255,.13);color:#fff}
+.new-file-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─── TOPBAR ─── */
+.topbar{position:fixed;top:0;left:220px;right:0;height:56px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:40;box-shadow:var(--shadow-sm)}
+.topbar-left{display:flex;flex-direction:column}
+.topbar-title{font-family:'Inter Display',sans-serif;font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+.topbar-sub{font-size:11px;color:var(--text-3)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.status-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.2px}
+.status-chip.pc{background:var(--green-bg);color:var(--green);border:1px solid #a7f3d0}
+.status-chip.risk{background:var(--amber-bg);color:var(--amber);border:1px solid #fcd34d}
+.status-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* ─── MAIN CONTENT ─── */
+.main{margin-left:220px;margin-top:56px;padding:24px;min-height:calc(100vh - 56px)}
+.tab-pane{display:none;animation:fadeUp .25s ease}
+.tab-pane.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ─── SECTION HEADER ─── */
+.section-hdr{margin-bottom:20px}
+.section-hdr h2{font-family:'Inter Display',sans-serif;font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.section-hdr p{font-size:12px;color:var(--text-3);margin-top:2px}
+
+/* ─── KPI CARDS ─── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.kpi-val{font-family:'Inter Display',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1;margin-bottom:6px}
+.kpi-val.blue{color:var(--accent)}.kpi-val.green{color:var(--green)}.kpi-val.red{color:var(--red)}.kpi-val.amber{color:var(--amber)}.kpi-val.purple{color:var(--purple)}
+.kpi-meta{font-size:11px;color:var(--text-3)}
+.kpi-bar{position:absolute;bottom:0;left:0;right:0;height:3px}
+.kpi-bar.blue{background:var(--accent)}.kpi-bar.green{background:var(--green)}.kpi-bar.red{background:var(--red)}.kpi-bar.amber{background:var(--amber)}.kpi-bar.purple{background:var(--purple)}
+
+/* ─── CHART PANELS ─── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.span2{grid-column:1/-1}
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.panel-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.1px}
+.panel-badge{font-size:10px;font-weight:600;color:var(--text-3);background:var(--surface);padding:3px 8px;border-radius:20px;border:1px solid var(--border-light)}
+
+/* ─── TABLE ─── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--surface);border-bottom:1px solid var(--border)}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--accent)}
+tbody tr{border-bottom:1px solid var(--border-light);transition:background .12s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f7f9fc}
+tbody td{padding:10px 14px;color:var(--text);white-space:nowrap;font-size:12px}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-blue{background:var(--accent-light);color:var(--accent)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-purple{background:var(--purple-bg);color:var(--purple)}
+
+/* ─── FILTER ROW ─── */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.inp{height:36px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:0 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.inp::placeholder{color:var(--text-3)}
+.inp-search{flex:1;min-width:200px}
+select.inp{cursor:pointer}
+
+/* ─── PAGINATION ─── */
+.pg-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;flex-wrap:wrap;gap:8px}
+.pg-info{font-size:11px;color:var(--text-3)}
+.pg-btns{display:flex;gap:4px}
+.pg-btn{height:30px;min-width:30px;padding:0 10px;background:var(--white);border:1px solid var(--border);border-radius:6px;color:var(--text-2);font-size:12px;font-weight:500;cursor:pointer;transition:.12s;font-family:'Inter',sans-serif}
+.pg-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pg-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ─── TREND STATUS ─── */
+.s-pc{color:var(--green)}.s-risk{color:var(--amber)}.s-not{color:var(--red)}
+
+/* ─── DIVIDER ─── */
+.divider{height:1px;background:var(--border-light);margin:20px 0}
+.sub-heading{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sub-heading::before{content:'';width:3px;height:13px;background:var(--accent);border-radius:2px}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d1d9e0;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#b0bcc9}
+</style>
+</head>
+<body>
+
+<!-- ═══════ UPLOAD ═══════ -->
+<div id="uploadScreen">
+  <div class="up-box">
+    <div class="up-brand">
+      <div class="up-brand-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 17h7M17.5 14v7"></path></svg></div>
+      <div><div class="up-brand-name">PC <span>Analytics</span></div></div>
+    </div>
+    <div class="up-headline">Upload your PC Report</div>
+    <div class="up-sub">Drop your Excel file to instantly generate a full interactive Price Compliance dashboard with charts, trends, and brand-level analysis.</div>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(this.files[0])">
+      <div class="drop-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></div>
+      <div class="drop-main">Drag &amp; drop your Excel file here</div>
+      <div class="drop-hint">or click to browse &nbsp;·&nbsp; .xlsx and .xls supported</div>
+    </div>
+    <div class="up-error" id="upErr"></div>
+    <div class="up-progress" id="upProg">
+      <div class="up-progress-bar"><div class="up-progress-fill" id="upFill"></div></div>
+      <div class="up-progress-txt" id="upTxt">Reading file…</div>
+    </div>
+    <div class="up-note">Expects sheets: <strong>PC Trend Summary · BDM &amp; Channel Wise PC · Brand Wise PC</strong> and a raw SKU data sheet. The dashboard auto-detects column names.</div>
+  </div>
+</div>
+
+<!-- ═══════ APP ═══════ -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-row">
+        <div class="sidebar-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 17h7M17.5 14v7"></path></svg></div>
+        <div><div class="sidebar-title">PC <span>Analytics</span></div><div class="sidebar-sub" id="sbDate">—</div></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Reports</div>
+      <div class="nav-item active" data-tab="summary" onclick="showTab(this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+        Summary
+      </div>
+      <div class="nav-item" data-tab="trend" onclick="showTab(this)">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        PC Trend
+      </div>
+      <div class="nav-item" data-tab="bdm" onclick="showTab(this)">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"></path></svg>
+        BDM &amp; Channel
+      </div>
+      <div class="nav-item" data-tab="brand" onclick="showTab(this)">
+        <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+        Brand Wise
+      </div>
+      <div class="nav-item" data-tab="sku" onclick="showTab(this)">
+        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        SKU Detail
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="new-file-btn" onclick="resetDashboard()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Upload New File
+      </button>
+    </div>
+  </aside>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="tbTitle">Price Compliance Dashboard</div>
+      <div class="topbar-sub" id="tbSub">—</div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-chip pc" id="statusChip">PC ✓</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- SUMMARY -->
+    <div id="tab-summary" class="tab-pane active">
+      <div class="section-hdr"><h2>Executive Summary</h2><p>Overall price compliance metrics for the current report date</p></div>
+      <div class="kpi-row" id="kpiRow"></div>
+      <div class="grid-2">
+        <div class="panel"><div class="panel-hdr"><span class="panel-title">Top 5 Compliant Brands</span><span class="panel-badge">by Comp PLP</span></div><canvas id="cTopComp" height="210"></canvas></div>
+        <div class="panel"><div class="panel-hdr"><span class="panel-title">Top 5 Non-Compliant Brands</span><span class="panel-badge">by Uncomp PLP</span></div><canvas id="cTopUncomp" height="210"></canvas></div>
+      </div>
+      <div class="panel span2"><div class="panel-hdr"><span class="panel-title">Compliant vs Non-Compliant PLP Split</span></div><canvas id="cSplit" height="70"></canvas></div>
+    </div>
+
+    <!-- TREND -->
+    <div id="tab-trend" class="tab-pane">
+      <div class="section-hdr"><h2>PC Trend Analysis</h2><p>Daily price compliance percentage across all report dates</p></div>
+      <div class="kpi-row" id="trendKPIs"></div>
+      <div class="panel" style="margin-bottom:16px"><div class="panel-hdr"><span class="panel-title">PC % — Daily Trend</span><span class="panel-badge" id="trendDateRange">—</span></div><canvas id="cTrend" height="150"></canvas></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="panel"><div class="panel-hdr"><span class="panel-title">PLP Risk % Trend</span></div><canvas id="cRisk" height="140"></canvas></div>
+        <div class="panel"><div class="panel-hdr"><span class="panel-title">Avg Gap Trend</span></div><canvas id="cGap" height="140"></canvas></div>
+      </div>
+      <div class="panel"><div class="panel-hdr"><span class="panel-title">All Dates History</span><span class="panel-badge" id="trendCount">—</span></div>
+        <div class="tbl-wrap"><table><thead id="tTrendHead"></thead><tbody id="tTrendBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- BDM -->
+    <div id="tab-bdm" class="tab-pane">
+      <div class="section-hdr"><h2>BDM &amp; Channel Performance</h2><p>Price compliance breakdown by Business Development Manager and channel</p></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="panel"><div class="panel-hdr"><span class="panel-title">BDM-wise PC %</span></div><canvas id="cBdm" height="220"></canvas></div>
+        <div class="panel"><div class="panel-hdr"><span class="panel-title">Channel PLP Distribution</span></div><canvas id="cChannel" height="220"></canvas></div>
+      </div>
+      <div class="sub-heading">BDM Performance</div>
+      <div class="panel" style="margin-bottom:16px"><div class="tbl-wrap"><table><thead id="tBdmHead"></thead><tbody id="tBdmBody"></tbody></table></div></div>
+      <div class="sub-heading">Channel Performance</div>
+      <div class="panel"><div class="tbl-wrap"><table><thead id="tChHead"></thead><tbody id="tChBody"></tbody></table></div></div>
+    </div>
+
+    <!-- BRAND -->
+    <div id="tab-brand" class="tab-pane">
+      <div class="section-hdr"><h2>Brand-wise Analysis</h2><p>PLP and compliance metrics across all brands</p></div>
+      <div class="panel" style="margin-bottom:16px"><div class="panel-hdr"><span class="panel-title">Top 20 Brands — PLP Breakdown</span><span class="panel-badge">Comp + Uncomp</span></div><canvas id="cBrandBar" height="150"></canvas></div>
+      <div class="panel">
+        <div class="filter-bar">
+          <input class="inp inp-search" id="brandSearch" placeholder="Search brand name…" oninput="filterBrands()">
+          <select class="inp" id="brandPCF" onchange="filterBrands()"><option value="">All PC %</option><option value="100">100%</option><option value="high">≥ 90%</option><option value="mid">50 – 90%</option><option value="low">Below 50%</option></select>
+        </div>
+        <div class="tbl-wrap"><table><thead id="tBrandHead"></thead><tbody id="tBrandBody"></tbody></table></div>
+        <div class="pg-row"><span class="pg-info" id="brandPgInfo"></span><div class="pg-btns" id="brandPgBtns"></div></div>
+      </div>
+    </div>
+
+    <!-- SKU -->
+    <div id="tab-sku" class="tab-pane">
+      <div class="section-hdr"><h2>SKU-level Detail</h2><p>Individual SKU pricing and compliance status from the raw data sheet</p></div>
+      <div class="panel">
+        <div class="filter-bar">
+          <input class="inp inp-search" id="skuSearch" placeholder="Search brand, category, reason…" oninput="filterSku()">
+          <select class="inp" id="skuPCF" onchange="filterSku()"><option value="">All Status</option><option value="Y">Compliant (Y)</option><option value="N">Non-Compliant (N)</option></select>
+          <select class="inp" id="skuGapF" onchange="filterSku()"><option value="">All Gap</option><option value="5">Gap ≥ 5%</option><option value="lt5">Gap &lt; 5%</option></select>
+        </div>
+        <div class="tbl-wrap"><table><thead id="tSkuHead"></thead><tbody id="tSkuBody"></tbody></table></div>
+        <div class="pg-row"><span class="pg-info" id="skuPgInfo"></span><div class="pg-btns" id="skuPgBtns"></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let DB={}, CH={};
+let bPage=1, bPer=20, bFiltered=[];
+let sPage=1, sPer=30, sFiltered=[];
+
+// ════════════════════════════════════════
+// UPLOAD
+// ════════════════════════════════════════
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])});
+
+function showErr(m){const el=document.getElementById('upErr');el.textContent=m;el.style.display='block'}
+function hideErr(){document.getElementById('upErr').style.display='none'}
+function setProg(p,t){document.getElementById('upProg').style.display='block';document.getElementById('upFill').style.width=p+'%';document.getElementById('upTxt').textContent=t}
+
+function handleFile(file){
+  if(!file)return;
+  if(!/\.(xlsx|xls)$/i.test(file.name)){showErr('Please upload a valid .xlsx or .xls file.');return}
+  hideErr();setProg(10,'Reading file…');
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      setProg(35,'Parsing workbook…');
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      setProg(65,'Processing sheets…');
+      parseWB(wb,file.name);
+      setProg(90,'Building dashboard…');
+      setTimeout(()=>{setProg(100,'Done!');setTimeout(()=>{document.getElementById('uploadScreen').style.display='none';document.getElementById('app').style.display='block';buildAll()},250)},200);
+    }catch(err){showErr('Parse error: '+err.message);document.getElementById('upProg').style.display='none';console.error(err)}
+  };
+  r.readAsArrayBuffer(file);
+}
+
+// ════════════════════════════════════════
+// PARSE
+// ════════════════════════════════════════
+function parseWB(wb,fname){
+  DB={filename:fname};
+  const sn=wb.SheetNames;
+  const toJ=s=>{const ws=wb.Sheets[s];return ws?XLSX.utils.sheet_to_json(ws,{defval:''}):[]}
+  const toA=s=>{const ws=wb.Sheets[s];return ws?XLSX.utils.sheet_to_json(ws,{header:1,defval:''}):[]}
+
+  // Trend
+  const tSn=sn.find(s=>s.toLowerCase().includes('trend'));
+  if(tSn){
+    const rows=toJ(tSn);
+    DB.trend=rows.filter(r=>r['Date']||r['date']).map(r=>{
+      const g=(...ks)=>{for(const k of Object.keys(r))for(const kk of ks)if(k.toLowerCase().includes(kk.toLowerCase())&&r[k]!=='')return r[k];return''}
+      return{date:g('Date','date'),sku:+g('Total SKUs','total skus')||0,comp:+g('Comp','comp skus')||0,uncomp:+g('Uncomp','uncomp skus')||0,
+        pc:parseFloat(g('PC%','pc %','Overall PC'))||0,waiver:+g('Waiver SKU','waiver sku')||0,wpc:parseFloat(g('Waiver PC','waiver pc'))||0,
+        gap:parseFloat(g('Avg Gap','avg gap'))||0,plp:+g('Total PLP','total plp')||0,uplp:+g('Uncomp PLP','uncomp plp')||0,
+        risk:parseFloat(g('PLP Risk','plp risk','Risk%'))||0,status:g('Status','status')+''}
+    }).filter(r=>r.date);
+  }else DB.trend=[];
+
+  // BDM
+  const bSn=sn.find(s=>s.toLowerCase().includes('bdm'));
+  DB.bdm=[];DB.channel=[];
+  if(bSn){
+    const arr=toA(bSn);let mode='';
+    arr.forEach(row=>{
+      const rs=row.join('|').toLowerCase();
+      if(rs.includes('bdm wise')||rs.includes('bdm'))mode='bdm';
+      if(rs.includes('channel wise'))mode='ch';
+      const c=row.filter(x=>x!=='');
+      if(c.length>=4&&!rs.includes('wise')&&!rs.includes('l1')&&c[0]!='BDM'&&c[0]!='Channel'){
+        const pc=parseFloat(c[4]);
+        if(!isNaN(pc)&&String(c[0]).length>0){
+          const o={name:c[0],uncomp:+c[1]||0,comp:+c[2]||0,total:+c[3]||0,pc,plpPct:parseFloat(c[5])||0};
+          if(mode==='bdm')DB.bdm.push({...o,gap:parseFloat(c[6])||0});
+          else if(mode==='ch')DB.channel.push(o);
+        }
+      }
+    });
+  }
+
+  // Brand
+  const brSn=sn.find(s=>s.toLowerCase().includes('brand'));
+  DB.brands=[];
+  if(brSn){
+    toA(brSn).forEach(row=>{
+      const c=row.slice(0,7);
+      if(c.length>=5&&c[0]&&c[0]!=='Brand'&&!String(c[0]).includes('BRAND')){
+        const t=+c[3]||0,pc=parseFloat(c[4]);
+        if(!isNaN(pc)&&t>0)DB.brands.push({brand:String(c[0]),uncomp:+c[1]||0,comp:+c[2]||0,total:t,pc,plpPct:parseFloat(c[5])||0});
+      }
+    });
+    DB.brands.sort((a,b)=>b.total-a.total);
+  }
+
+  // SKU (biggest non-named sheet)
+  const rawSn=sn.find(s=>{const l=s.toLowerCase();return!l.includes('summ')&&!l.includes('trend')&&!l.includes('bdm')&&!l.includes('brand')&&!l.includes('overall')&&!l.includes('waiver')})||sn[sn.length-1];
+  if(rawSn){
+    const rows=toJ(rawSn);
+    DB.sku=rows.filter(r=>Object.keys(r).length>4).map(r=>{
+      const g=(...ks)=>{for(const k of Object.keys(r))for(const kk of ks)if(k.toLowerCase().includes(kk.toLowerCase())&&r[k]!=='')return r[k];return''}
+      return{brand:g('Brand Name','Brand','brand')+'',subcat:g('Sub Category','Subcategory','sub cat','category')+'',
+        fsn:g('FSN','ASIN','Product ID','fsn','asin','sku')+'',product:g('Product Name','Product','Name','product')+'',
+        mrp:parseFloat(g('MRP','mrp'))||0,sell:parseFloat(g('Selling Price','Sell Price','sell price','selling'))||0,
+        comp:parseFloat(g('Comp Price','Competitive','comp price'))||0,gap:parseFloat(g('Gap%','Gap %','gap%','gap'))||0,
+        pc:g('Comp Flag','comp flag','Is Comp','is_comp','Is PC','PC')+'',reason:g('Reason','reason','Non Comp Reason','uncomp reason')+'',
+        plp:+g('PLP','plp','Daily Views')||0}
+    }).filter(r=>r.brand&&r.brand!=='undefined'&&r.brand.length>1);
+  }else DB.sku=[];
+
+  // Summary from last trend row
+  const last=DB.trend.length?DB.trend[DB.trend.length-1]:null;
+  DB.summary=last?{totalPLP:last.plp,compPLP:last.plp-(last.uplp||0),uncompPLP:last.uplp||0,
+    overallPC:last.pc,waiverPC:last.wpc,date:last.date,status:last.status||''}:{totalPLP:0,compPLP:0,uncompPLP:0,overallPC:0,waiverPC:0,date:'',status:''};
+}
+
+// ════════════════════════════════════════
+// BUILD ALL
+// ════════════════════════════════════════
+function buildAll(){
+  const s=DB.summary;
+  document.getElementById('sbDate').textContent=s.date||DB.filename||'';
+  document.getElementById('tbTitle').textContent='Price Compliance Dashboard';
+  document.getElementById('tbSub').textContent=(s.date?'Report Date: '+s.date:'') + (DB.filename?' · '+DB.filename:'');
+  const chip=document.getElementById('statusChip');
+  chip.className='status-chip '+(s.overallPC>=90?'pc':'risk');
+  chip.textContent=s.overallPC>=90?'PC ✓':'At Risk';
+  buildSummary();buildTrend();buildBDM();buildBrands();buildSku();
+}
+
+// ── SUMMARY ──────────────────────────────
+function buildSummary(){
+  const s=DB.summary;
+  const pcC=s.overallPC>=90?'green':s.overallPC>=75?'blue':'amber';
+  document.getElementById('kpiRow').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Overall PC %</div><div class="kpi-val ${pcC}">${s.overallPC}%</div><div class="kpi-meta">Status: ${s.status||'—'}</div><div class="kpi-bar ${pcC}"></div></div>
+    <div class="kpi"><div class="kpi-label">Total PLP</div><div class="kpi-val blue">${fmt(s.totalPLP)}</div><div class="kpi-meta">All categories</div><div class="kpi-bar blue"></div></div>
+    <div class="kpi"><div class="kpi-label">Compliant PLP</div><div class="kpi-val green">${fmt(s.compPLP)}</div><div class="kpi-meta">${pct(s.compPLP,s.totalPLP)}% of total</div><div class="kpi-bar green"></div></div>
+    <div class="kpi"><div class="kpi-label">Non-Compliant PLP</div><div class="kpi-val red">${fmt(s.uncompPLP)}</div><div class="kpi-meta">${pct(s.uncompPLP,s.totalPLP)}% of total</div><div class="kpi-bar red"></div></div>
+    <div class="kpi"><div class="kpi-label">Waiver PC %</div><div class="kpi-val purple">${s.waiverPC||'—'}%</div><div class="kpi-meta">Waiver subset</div><div class="kpi-bar purple"></div></div>`;
+
+  const top5c=[...DB.brands].sort((a,b)=>b.comp-a.comp).slice(0,5);
+  const top5u=[...DB.brands].sort((a,b)=>b.uncomp-a.uncomp).slice(0,5);
+
+  mk('cTopComp',{type:'bar',data:{labels:top5c.map(d=>d.brand),datasets:[{label:'Comp PLP',data:top5c.map(d=>d.comp),backgroundColor:'#2563eb',borderRadius:4,barThickness:16}]},options:hBar('#2563eb')});
+  mk('cTopUncomp',{type:'bar',data:{labels:top5u.map(d=>d.brand),datasets:[{label:'Uncomp PLP',data:top5u.map(d=>d.uncomp),backgroundColor:'#dc2626',borderRadius:4,barThickness:16}]},options:hBar('#dc2626')});
+  mk('cSplit',{type:'bar',data:{labels:['PLP'],datasets:[
+    {label:'Compliant',data:[s.compPLP],backgroundColor:'#2563eb',borderRadius:4},
+    {label:'Non-Compliant',data:[s.uncompPLP],backgroundColor:'#dc2626',borderRadius:4}
+  ]},options:{indexAxis:'y',responsive:true,plugins:{legend:{position:'right',labels:{color:'#4a5568',font:{family:'Inter',size:12},padding:16}}},scales:{x:{stacked:true,grid:{color:'#edf0f3'},ticks:{color:'#8a97a8',font:{family:'Inter',size:11}}},y:{stacked:true,grid:{display:false},ticks:{color:'#4a5568'}}}}});
+}
+
+function hBar(color){return{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString()}}},scales:{x:{grid:{color:'#edf0f3'},ticks:{color:'#8a97a8',font:{family:'Inter',size:11}}},y:{grid:{display:false},ticks:{color:'#1a2332',font:{family:'Inter',size:12}}}}}}
+
+// ── TREND ──────────────────────────────
+function buildTrend(){
+  const T=DB.trend;
+  if(!T.length){document.getElementById('tab-trend').innerHTML='<div style="padding:40px;color:#8a97a8;text-align:center">No trend data found in this file.</div>';return}
+  const last=T[T.length-1];
+  document.getElementById('trendDateRange').textContent=T[0].date+' → '+last.date;
+  document.getElementById('trendCount').textContent=T.length+' dates';
+  document.getElementById('trendKPIs').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Latest PC %</div><div class="kpi-val ${last.pc>=90?'green':last.pc>=75?'blue':'amber'}">${last.pc}%</div><div class="kpi-meta">${last.date}</div><div class="kpi-bar green"></div></div>
+    <div class="kpi"><div class="kpi-label">Total SKUs</div><div class="kpi-val blue">${fmt(last.sku)}</div><div class="kpi-meta">Comp ${fmt(last.comp)} · Uncomp ${fmt(last.uncomp)}</div><div class="kpi-bar blue"></div></div>
+    <div class="kpi"><div class="kpi-label">Avg Gap</div><div class="kpi-val amber">${last.gap}</div><div class="kpi-meta">Latest reading</div><div class="kpi-bar amber"></div></div>
+    <div class="kpi"><div class="kpi-label">Waiver PC %</div><div class="kpi-val purple">${last.wpc}%</div><div class="kpi-meta">Waiver SKUs: ${fmt(last.waiver)}</div><div class="kpi-bar purple"></div></div>
+    <div class="kpi"><div class="kpi-label">PLP Risk %</div><div class="kpi-val ${last.risk<=15?'green':last.risk<=25?'amber':'red'}">${last.risk}%</div><div class="kpi-meta">At-risk PLP share</div><div class="kpi-bar ${last.risk<=15?'green':last.risk<=25?'amber':'red'}"></div></div>`;
+
+  const lCfg=(label,data,color)=>({label,data,borderColor:color,backgroundColor:color+'18',pointBackgroundColor:color,pointRadius:3.5,pointBorderWidth:0,tension:.35,fill:true,borderWidth:2});
+  mk('cTrend',{type:'line',data:{labels:T.map(d=>d.date),datasets:[lCfg('PC %',T.map(d=>d.pc),'#2563eb'),{...lCfg('Waiver PC %',T.map(d=>d.wpc),'#7c3aed'),fill:false,borderDash:[5,3],pointRadius:2}]},options:lineOpt('%',0,110)});
+  mk('cRisk',{type:'line',data:{labels:T.map(d=>d.date),datasets:[lCfg('PLP Risk %',T.map(d=>d.risk),'#dc2626')]},options:lineOpt('%')});
+  mk('cGap',{type:'line',data:{labels:T.map(d=>d.date),datasets:[lCfg('Avg Gap',T.map(d=>d.gap),'#d97706')]},options:lineOpt()});
+
+  document.getElementById('tTrendHead').innerHTML=`<tr><th>Date</th><th>Total SKUs</th><th>Comp</th><th>Uncomp</th><th>PC %</th><th>Waiver SKUs</th><th>Waiver PC %</th><th>Avg Gap</th><th>Total PLP</th><th>PLP Risk %</th><th>Status</th></tr>`;
+  document.getElementById('tTrendBody').innerHTML=T.map(d=>`<tr>
+    <td><strong>${d.date}</strong></td><td>${fmt(d.sku)}</td><td>${fmt(d.comp)}</td><td>${fmt(d.uncomp)}</td>
+    <td>${pcBadge(d.pc)}</td><td>${fmt(d.waiver)}</td><td>${d.wpc}%</td><td>${d.gap}</td><td>${fmt(d.plp)}</td><td>${d.risk}%</td>
+    <td class="${d.status==='PC'?'s-pc':d.status==='At Risk'?'s-risk':'s-not'}" style="font-weight:600">${d.status}</td>
+  </tr>`).join('');
+}
+
+function lineOpt(suf='',yMin,yMax){return{responsive:true,plugins:{legend:{labels:{color:'#4a5568',font:{family:'Inter',size:12},padding:14}}},scales:{x:{grid:{color:'#f0f2f5'},ticks:{color:'#8a97a8',font:{family:'Inter',size:11},maxRotation:35}},y:{min:yMin,max:yMax,grid:{color:'#f0f2f5'},ticks:{color:'#8a97a8',font:{family:'Inter',size:11},callback:v=>v+suf}}}}}
+
+// ── BDM ──────────────────────────────
+function buildBDM(){
+  if(!DB.bdm.length){document.getElementById('tab-bdm').innerHTML='<div style="padding:40px;color:#8a97a8;text-align:center">No BDM/Channel data found.</div>';return}
+  mk('cBdm',{type:'bar',data:{labels:DB.bdm.map(d=>d.name),datasets:[{label:'PC %',data:DB.bdm.map(d=>d.pc),backgroundColor:DB.bdm.map(d=>d.pc>=90?'#059669':d.pc>=70?'#2563eb':'#dc2626'),borderRadius:5,barThickness:28}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` PC %: ${c.raw}%`}}},scales:{x:{grid:{display:false},ticks:{color:'#4a5568',font:{family:'Inter',size:12}}},y:{max:100,grid:{color:'#f0f2f5'},ticks:{color:'#8a97a8',font:{family:'Inter',size:11},callback:v=>v+'%'}}}}});
+  if(DB.channel.length) mk('cChannel',{type:'doughnut',data:{labels:DB.channel.map(d=>`${d.name} · ${d.plpPct}%`),datasets:[{data:DB.channel.map(d=>d.total),backgroundColor:['#2563eb','#dc2626','#059669','#d97706','#7c3aed'],borderWidth:0,hoverBorderWidth:2,hoverBorderColor:'#fff'}]},options:{cutout:'65%',responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#4a5568',font:{family:'Inter',size:12},padding:14}}}}});
+
+  document.getElementById('tBdmHead').innerHTML=`<tr><th>BDM</th><th>Uncomp PLP</th><th>Comp PLP</th><th>Total PLP</th><th>PC %</th><th>PLP %</th><th>Avg Gap</th></tr>`;
+  document.getElementById('tBdmBody').innerHTML=DB.bdm.map(d=>`<tr>
+    <td><strong>${d.name}</strong></td><td style="color:#dc2626">${fmt(d.uncomp)}</td><td style="color:#059669">${fmt(d.comp)}</td><td>${fmt(d.total)}</td>
+    <td>${pcBadge(d.pc)}</td><td>${d.plpPct}%</td><td style="color:${d.gap<0?'#dc2626':'#059669'}">${d.gap}</td>
+  </tr>`).join('');
+  if(DB.channel.length){
+    document.getElementById('tChHead').innerHTML=`<tr><th>Channel</th><th>Uncomp PLP</th><th>Comp PLP</th><th>Total PLP</th><th>PC %</th><th>PLP %</th></tr>`;
+    document.getElementById('tChBody').innerHTML=DB.channel.map(d=>`<tr>
+      <td><strong>${d.name}</strong></td><td style="color:#dc2626">${fmt(d.uncomp)}</td><td style="color:#059669">${fmt(d.comp)}</td><td>${fmt(d.total)}</td>
+      <td>${pcBadge(d.pc)}</td><td>${d.plpPct}%</td>
+    </tr>`).join('');
+  }
+}
+
+// ── BRANDS ──────────────────────────────
+function buildBrands(){
+  bFiltered=[...DB.brands];
+  const t20=DB.brands.slice(0,20);
+  mk('cBrandBar',{type:'bar',data:{labels:t20.map(d=>d.brand),datasets:[{label:'Comp PLP',data:t20.map(d=>d.comp),backgroundColor:'#2563eb',borderRadius:3,stack:'s'},{label:'Uncomp PLP',data:t20.map(d=>d.uncomp),backgroundColor:'#fca5a5',borderRadius:3,stack:'s'}]},options:{responsive:true,plugins:{legend:{labels:{color:'#4a5568',font:{family:'Inter',size:12},padding:14}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#8a97a8',font:{family:'Inter',size:10},maxRotation:35}},y:{stacked:true,grid:{color:'#f0f2f5'},ticks:{color:'#8a97a8',font:{family:'Inter',size:11}}}}}});
+  document.getElementById('tBrandHead').innerHTML=`<tr><th>#</th><th>Brand</th><th>Uncomp PLP</th><th>Comp PLP</th><th>Total PLP</th><th>PC %</th><th>PLP %</th></tr>`;
+  renderBrands();
+}
+function renderBrands(){
+  const s=(bPage-1)*bPer,slice=bFiltered.slice(s,s+bPer);
+  document.getElementById('tBrandBody').innerHTML=slice.map((d,i)=>`<tr>
+    <td style="color:#8a97a8">${s+i+1}</td><td><strong>${d.brand}</strong></td>
+    <td style="color:#dc2626">${fmt(d.uncomp)}</td><td style="color:#059669">${fmt(d.comp)}</td><td>${fmt(d.total)}</td>
+    <td>${pcBadge(d.pc)}</td><td>${d.plpPct}%</td>
+  </tr>`).join('');
+  pgRender('brandPgInfo','brandPgBtns',bFiltered.length,bPage,bPer,'brand');
+}
+function filterBrands(){
+  const q=document.getElementById('brandSearch').value.toLowerCase();
+  const f=document.getElementById('brandPCF').value;
+  bFiltered=DB.brands.filter(d=>{
+    const m=d.brand.toLowerCase().includes(q);
+    const p=!f||(f==='100'&&d.pc===100)||(f==='high'&&d.pc>=90&&d.pc<100)||(f==='mid'&&d.pc>=50&&d.pc<90)||(f==='low'&&d.pc<50);
+    return m&&p;
+  });
+  bPage=1;renderBrands();
+}
+
+// ── SKU ──────────────────────────────
+function buildSku(){
+  sFiltered=[...DB.sku];
+  if(!DB.sku.length){document.getElementById('skuPgInfo').textContent='No SKU data found.';return}
+  document.getElementById('tSkuHead').innerHTML=`<tr><th>Brand</th><th>Subcategory</th><th>Product</th><th>FSN / ID</th><th>MRP</th><th>Sell Price</th><th>Comp Price</th><th>Gap %</th><th>Status</th><th>Reason</th><th>PLP</th></tr>`;
+  renderSku();
+}
+function renderSku(){
+  const s=(sPage-1)*sPer,slice=sFiltered.slice(s,s+sPer);
+  document.getElementById('tSkuBody').innerHTML=slice.map(d=>`<tr>
+    <td><strong>${d.brand}</strong></td><td style="color:#4a5568">${d.subcat}</td>
+    <td style="color:#4a5568;max-width:180px;overflow:hidden;text-overflow:ellipsis">${(d.product+'').slice(0,35)}</td>
+    <td style="font-family:monospace;font-size:11px;color:#8a97a8">${(d.fsn+'').slice(0,14)}</td>
+    <td>${d.mrp?'₹'+d.mrp.toLocaleString():'—'}</td><td>${d.sell?'₹'+d.sell.toLocaleString():'—'}</td><td>${d.comp?'₹'+d.comp.toLocaleString():'—'}</td>
+    <td>${d.gap?`<span style="color:${d.gap>=5?'#dc2626':'#d97706'};font-weight:600">${d.gap}%</span>`:'—'}</td>
+    <td>${d.pc==='Y'?'<span class="badge badge-green">Comp</span>':d.pc==='N'?'<span class="badge badge-red">Uncomp</span>':'<span class="badge badge-amber">'+d.pc+'</span>'}</td>
+    <td style="color:#8a97a8;font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${(d.reason+'').slice(0,45)}</td>
+    <td>${fmt(d.plp)}</td>
+  </tr>`).join('');
+  pgRender('skuPgInfo','skuPgBtns',sFiltered.length,sPage,sPer,'sku');
+}
+function filterSku(){
+  const q=document.getElementById('skuSearch').value.toLowerCase();
+  const pf=document.getElementById('skuPCF').value;
+  const gf=document.getElementById('skuGapF').value;
+  sFiltered=DB.sku.filter(d=>{
+    const m=(d.brand+'').toLowerCase().includes(q)||(d.subcat+'').toLowerCase().includes(q)||(d.reason+'').toLowerCase().includes(q)||(d.product+'').toLowerCase().includes(q);
+    const p=!pf||(d.pc+'').toUpperCase()===pf;
+    const g=!gf||(gf==='5'&&d.gap>=5)||(gf==='lt5'&&d.gap>0&&d.gap<5);
+    return m&&p&&g;
+  });
+  sPage=1;renderSku();
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function fmt(n){if(!n&&n!==0)return'—';n=+n;if(n>=10000000)return(n/10000000).toFixed(2)+'Cr';if(n>=100000)return(n/100000).toFixed(2)+'L';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toLocaleString()}
+function pct(a,b){return b?Math.round(a/b*100):0}
+function pcBadge(v){
+  if(v===100||v==='100')return'<span class="badge badge-green">100%</span>';
+  if(v>=90)return`<span class="badge badge-blue">${v}%</span>`;
+  if(v>=50)return`<span class="badge badge-amber">${v}%</span>`;
+  return`<span class="badge badge-red">${v}%</span>`;
+}
+function mk(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElementById(id),cfg)}
+
+function pgRender(infoId,btnsId,total,page,per,type){
+  const tp=Math.ceil(total/per);
+  document.getElementById(infoId).textContent=`Showing ${(page-1)*per+1}–${Math.min(page*per,total)} of ${total.toLocaleString()}`;
+  const c=document.getElementById(btnsId);c.innerHTML='';
+  let pages=[];
+  if(tp<=7){for(let i=1;i<=tp;i++)pages.push(i)}
+  else{pages=[1];if(page>3)pages.push('…');for(let i=Math.max(2,page-1);i<=Math.min(tp-1,page+1);i++)pages.push(i);if(page<tp-2)pages.push('…');pages.push(tp)}
+  pages.forEach(p=>{
+    if(p==='…'){c.innerHTML+=`<span style="color:#8a97a8;line-height:30px;padding:0 4px">…</span>`}
+    else{c.innerHTML+=`<button class="pg-btn${p===page?' on':''}" onclick="${type==='brand'?'bPage':'sPage'}=${p};render${type==='brand'?'Brands':'Sku'}()">${p}</button>`}
+  });
+}
+
+function showTab(el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+el.dataset.tab).classList.add('active');
+}
+
+function resetDashboard(){
+  Object.values(CH).forEach(c=>c.destroy());CH={};DB={};bPage=1;sPage=1;bFiltered=[];sFiltered=[];
+  document.getElementById('fileInput').value='';
+  document.getElementById('upProg').style.display='none';
+  document.getElementById('upFill').style.width='0%';
+  document.getElementById('app').style.display='none';
+  document.getElementById('uploadScreen').style.display='flex';
+  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active',i===0));
+  document.querySelectorAll('.tab-pane').forEach((p,i)=>p.classList.toggle('active',i===0));
+}
+</script>
+
+
+</body></html>
